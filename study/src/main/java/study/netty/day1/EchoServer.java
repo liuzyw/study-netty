@@ -3,12 +3,7 @@ package study.netty.day1;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -31,19 +26,19 @@ public class EchoServer {
 
     private int port;
 
-    public EchoServer (int port) {
+    public EchoServer(int port) {
         this.port = port;
     }
 
 
-    public static void main (String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         new EchoServer(9999).start();
 
     }
 
 
-    public void start () throws Exception {
+    public void start() throws Exception {
 
         EventLoopGroup group = new NioEventLoopGroup();
 
@@ -54,7 +49,7 @@ public class EchoServer {
                     .localAddress(new InetSocketAddress(port))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel (SocketChannel socketChannel) throws Exception {
+                        protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline().addLast(new EchoServerHandler());
                         }
                     });
@@ -75,7 +70,7 @@ public class EchoServer {
 
 class EchoServerHandler extends ChannelInboundHandlerAdapter {
     @Override
-    public void channelRead (ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         ByteBuf byteBuf = (ByteBuf) msg;
 
@@ -90,14 +85,14 @@ class EchoServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelReadComplete (ChannelHandlerContext ctx) throws Exception {
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
 
         // 将未决消息冲刷到 远程节点，并且关 闭该 Channel
         ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override
-    public void exceptionCaught (ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
         ctx.close();
     }
