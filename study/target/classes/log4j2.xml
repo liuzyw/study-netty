@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- log4j2使用说明
+使用方式如下：
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+private static Logger logger = LogManager.getLogger(class);
+
+2、日志说明：
+（1）请根据实际情况配置各项参数
+（2）需要注意日志文件备份数和日志文件大小，注意预留目录空间
+（3）实际部署的时候backupFilePatch变量需要修改成linux目录
+
+日志输出格式：
+	%d{yyyy-MM-dd HH:mm:ss.SSS} : 日志生产时间
+  %p : 日志输出格式
+  %c : logger的名称
+  %m : 日志内容，即 logger.info("message")
+  %n : 换行符
+  %C : Java类名
+  %L : 日志输出所在行数
+  %M : 日志输出所在方法名
+  hostName : 本地机器名
+  hostAddress : 本地ip地址
+ -->
+<!-- status 追踪的日志级别 一般是info+
+ monitorInterval ： 自动检测配置文件并加载，单位s-->
+<configuration monitorInterval="30" status="DEBUG">
+  <!-- configuration 节点只有三种子节点 -->
+  <Properties>
+    <Property name="fileName">myLog.log</Property>
+    <Property name="backupFilePatch">/Users/liuzhaoyuan/gitwork/study-netty/logs</Property>
+  </Properties>
+  <!--先定义所有的appender-->
+  <appenders>
+    <!--这个输出控制台的配置-->
+    <Console name="Console" target="SYSTEM_OUT">
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+      <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+      <!--这个都知道是输出日志的格式-->
+      <PatternLayout charset="UTF-8"
+        pattern="%highlight{%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %-10C %M %L: %m%n}"/>
+    </Console>
+
+
+    <!--这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+    <!--filePattern 指定新建日志文件的名称格式-->
+    <RollingFile fileName="${backupFilePatch}/debug.log"
+      filePattern="${backupFilePatch}/$${date:yyyy-MM}/%d{yyyy-MM-dd}.debug.log"
+      name="RollingFileDebug">
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）
+       DENY，日志将立即被抛弃不再经过其他过滤器； NEUTRAL，有序列表里的下个过滤器过接着处理日志；
+       ACCEPT，日志会被立即处理，不再经过剩余过滤器。 先拒绝的要放在前面 -->
+      <Filters>
+        <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+      </Filters>
+      <!--  z 表示时区 -->
+      <PatternLayout charset="UTF-8"
+        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS z} [%-5level] %C %M %L: %m%n"/>
+      <Policies>
+        <!-- 基于时间的分割  默认是1 hour
+         如果启用此配置，则日志会按文件名生成新压缩文件， 即如果filePattern配置的日期格式为 %d{yyyy-MM-dd HH}
+         则每小时生成一个压缩文件， 如果filePattern配置的日期格式为 %d{yyyy-MM-dd} ，则天生成一个压缩文件-->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <!-- 基于文件大小的分割 -->
+        <!--<SizeBasedTriggeringPolicy size="100MB"/>-->
+      </Policies>
+      <!--最多保留文件数-->
+      <DefaultRolloverStrategy max="31"/>
+    </RollingFile>
+
+    <!--这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+    <!--filePattern 指定新建日志文件的名称格式-->
+    <RollingFile fileName="${backupFilePatch}/info.log"
+      filePattern="${backupFilePatch}/$${date:yyyy-MM}/%d{yyyy-MM-dd}.info.log"
+      name="RollingFileInfo">
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）
+       DENY，日志将立即被抛弃不再经过其他过滤器； NEUTRAL，有序列表里的下个过滤器过接着处理日志；
+       ACCEPT，日志会被立即处理，不再经过剩余过滤器。 先拒绝的要放在前面 -->
+      <Filters>
+        <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+      </Filters>
+      <!--  z 表示时区 -->
+      <PatternLayout charset="UTF-8"
+        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS z} [%-5level] %C %M %L: %m%n"/>
+      <Policies>
+        <!-- 基于时间的分割  默认是1 hour
+         如果启用此配置，则日志会按文件名生成新压缩文件， 即如果filePattern配置的日期格式为 %d{yyyy-MM-dd HH}
+         则每小时生成一个压缩文件， 如果filePattern配置的日期格式为 %d{yyyy-MM-dd} ，则天生成一个压缩文件-->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <!-- 基于文件大小的分割 -->
+        <!--<SizeBasedTriggeringPolicy size="100MB"/>-->
+      </Policies>
+      <!--最多保留文件数-->
+      <DefaultRolloverStrategy max="31"/>
+    </RollingFile>
+
+    <RollingFile fileName="${backupFilePatch}/warn.log"
+      filePattern="${backupFilePatch}/$${date:yyyy-MM}/%d{yyyy-MM-dd}.warn.log"
+      name="RollingFileWarn">
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+      <Filters>
+        <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+      </Filters>
+      <!--  z 表示时区 -->
+      <PatternLayout charset="UTF-8"
+        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS z} [%-5level] %C %M %L: %m%n"/>
+      <Policies>
+        <!-- 基于时间的分割  默认是1 hour
+         如果启用此配置，则日志会按文件名生成新压缩文件， 即如果filePattern配置的日期格式为 %d{yyyy-MM-dd HH}
+         则每小时生成一个压缩文件， 如果filePattern配置的日期格式为 %d{yyyy-MM-dd} ，则天生成一个压缩文件-->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <!-- 基于文件大小的分割 -->
+        <!--<SizeBasedTriggeringPolicy size="100MB"/>-->
+      </Policies>
+      <!--最多保留文件数-->
+      <DefaultRolloverStrategy max="31"/>
+    </RollingFile>
+
+    <RollingFile fileName="${backupFilePatch}/error.log"
+      filePattern="${backupFilePatch}/$${date:yyyy-MM}/%d{yyyy-MM-dd}.error.log"
+      name="RollingFileError">
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+      <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+      <!--  z 表示时区 -->
+      <PatternLayout charset="UTF-8"
+        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS z} [%-5level] %C %M %L: %m%n"/>
+      <Policies>
+        <!-- 基于时间的分割  默认是1 hour
+         如果启用此配置，则日志会按文件名生成新压缩文件， 即如果filePattern配置的日期格式为 %d{yyyy-MM-dd HH}
+         则每小时生成一个压缩文件， 如果filePattern配置的日期格式为 %d{yyyy-MM-dd} ，则天生成一个压缩文件-->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <!-- 基于文件大小的分割 -->
+        <!--<SizeBasedTriggeringPolicy size="100MB"/>-->
+      </Policies>
+      <!--最多保留文件数-->
+      <DefaultRolloverStrategy max="31"/>
+    </RollingFile>
+
+    <RollingFile fileName="${backupFilePatch}/root.log"
+      filePattern="${backupFilePatch}/$${date:yyyy-MM}/%d{yyyy-MM-dd}.root.log"
+      name="RollingFileRoot">
+      <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+      <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+      <!--  z 表示时区 -->
+      <PatternLayout charset="UTF-8"
+        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS z} [%-5level] %C %M %L: %m%n"/>
+      <Policies>
+        <!-- 基于时间的分割  默认是1 hour
+         如果启用此配置，则日志会按文件名生成新压缩文件， 即如果filePattern配置的日期格式为 %d{yyyy-MM-dd HH}
+         则每小时生成一个压缩文件， 如果filePattern配置的日期格式为 %d{yyyy-MM-dd} ，则天生成一个压缩文件-->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <!-- 基于文件大小的分割 -->
+        <!--<SizeBasedTriggeringPolicy size="100MB"/>-->
+      </Policies>
+      <!--最多保留文件数-->
+      <DefaultRolloverStrategy max="31"/>
+    </RollingFile>
+
+  </appenders>
+
+  <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
+  <loggers>
+    <!--
+      注意： 如果 Logger 节点和 Root 节点配置的 ref 重复会导致日志重复输出,
+      可通过 配置 additivity="false" 解决
+    -->
+    <!--Logger节点用来单独指定日志的形式，比如要为指定<logger name="org.springframework" level="info"/>包下的class指定不同的日志级别等-->
+    <Logger additivity="false" level="ERROR" name="org.springframework.core">
+      <AppenderRef ref="RollingFileError"/>
+    </Logger>
+    <Logger additivity="false" level="ERROR" name="org.springframework.beans">
+      <AppenderRef ref="RollingFileError"/>
+    </Logger>
+    <Logger additivity="false" level="ERROR" name="org.springframework.context">
+      <AppenderRef ref="RollingFileError"/>
+    </Logger>
+    <Logger additivity="false" level="ERROR" name="org.springframework.web">
+      <AppenderRef ref="RollingFileError"/>
+    </Logger>
+    <Logger additivity="false" level="INFO" name="org.apache.http">
+      <AppenderRef ref="RollingFileInfo"/>
+      <AppenderRef ref="RollingFileWarn"/>
+      <AppenderRef ref="RollingFileError"/>
+      <AppenderRef ref="RollingFileRoot"/>
+    </Logger>
+
+    <Logger level="DEBUG" name="com.ibatis">
+      <AppenderRef ref="RollingFileDebug"/>
+      <AppenderRef ref="RollingFileInfo"/>
+      <AppenderRef ref="RollingFileWarn"/>
+      <AppenderRef ref="RollingFileError"/>
+      <AppenderRef ref="RollingFileRoot"/>
+    </Logger>
+    <!--<Logger level="INFO" name="java.sql.Connection"/>-->
+    <!--<Logger level="INFO" name="java.sql.Statement"/>-->
+    <!--<Logger level="INFO" name="java.sql.PreparedStatement"/>-->
+    <!--<Logger level="INFO" name="java.sql.ResultSet"/>-->
+    <!--<Logger level="INFO" name="java.sql.PreparedStatement"/>-->
+    <!--<Logger level="INFO" name="com.ibatis.common.jdbc.SimpleDataSource"/>-->
+    <!--<Logger level="INFO" name="com.ibatis.common.jdbc.ScriptRunner"/>-->
+    <!--<Logger level="INFO" name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate"/>-->
+    <!--<Logger level="INFO" name="com.ibatis"/>-->
+
+
+    <!--Root节点用来指定项目的根日志，如果没有单独指定Logger，那么就会默认使用该Root日志输出
+    - 定义logger，只有定义了logger并引入了appender，appender才会生效
+    -->
+    <Root level="DEBUG">
+      <!--AppenderRef：Root的子节点，用来指定该日志输出到哪个Appender. -->
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="RollingFileDebug"/>
+      <AppenderRef ref="RollingFileInfo"/>
+      <AppenderRef ref="RollingFileWarn"/>
+      <AppenderRef ref="RollingFileError"/>
+      <AppenderRef ref="RollingFileRoot"/>
+    </Root>
+
+  </loggers>
+
+</configuration>
