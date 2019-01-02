@@ -45,7 +45,6 @@ public class EchoClient {
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group).channel(NioSocketChannel.class)
-                    .remoteAddress(new InetSocketAddress(host, port))
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel channel) throws Exception {
@@ -53,7 +52,7 @@ public class EchoClient {
                         }
                     });
 
-            ChannelFuture future = bootstrap.connect().sync();
+            ChannelFuture future = bootstrap.connect(host, port).sync();
             future.channel().closeFuture().sync();
 
         } catch (Exception e) {
