@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>hello</title>
+</head>
+<body>
+
+<form onsubmit="return false;">
+
+
+    <textarea name="message" style="width: 400px;height: 200px"></textarea>
+
+    <input type="button" value="发送数据" onclick="sendMsg(this.form.message.value)"/>
+
+    <h3>服务端输出</h3>
+
+    <textarea id="resp" style="width: 400px;height: 200px"></textarea>
+
+    <input type="button" onclick="javascript: document.getElementById('resp').value=''" value="清空"/>
+
+
+</form>
+
+
+<script type="text/javascript">
+    var socket;
+
+    if (window.WebSocket) {
+        socket = new WebSocket("ws://localhost:9999/wsa");
+
+        // 客户端收到服务端调用
+        socket.onmessage = function (event) {
+            var ta = document.getElementById('resp');
+            ta.value = ta.value + "\n" + event.data;
+        };
+
+        socket.onopen = function (event) {
+            var ta = document.getElementById('resp');
+            ta.value = "连接开启";
+
+        };
+
+        socket.onclose = function (event) {
+            var ta = document.getElementById('resp');
+            ta.value = ta.value + "\n" + "连接关闭";
+
+        };
+
+        function sendMsg(msg) {
+            if (!window.WebSocket) {
+                return;
+            }
+
+            if (socket.readyState == WebSocket.OPEN) {
+                socket.send(msg);
+            } else {
+                alert("连接没有开始");
+            }
+        };
+
+
+    } else {
+        alert("浏览器不支持 webSocket ");
+    }
+
+</script>
+
+
+</body>
+</html>
